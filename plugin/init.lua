@@ -185,123 +185,147 @@ local roman_numerals = {
   "Ⅻ",
 }
 
--- custom tab bar
-wezterm.on(
-  "format-tab-title",
-  function(tab, tabs, _panes, conf, _hover, _max_width)
-    local colours = conf.resolved_palette.tab_bar
 
-    local active_tab_index = 0
-    for _, t in ipairs(tabs) do
-      if t.is_active == true then
-        active_tab_index = t.tab_index
-      end
+local function format_tab_title(tab, tabs, _panes, conf, _hover, _max_width)
+  local colours = conf.resolved_palette.tab_bar
+
+  local active_tab_index = 0
+  for _, t in ipairs(tabs) do
+    if t.is_active == true then
+      active_tab_index = t.tab_index
     end
+  end
 
-    -- TODO: make colors configurable
-    local rainbow = {
-      conf.resolved_palette.ansi[2],
-      conf.resolved_palette.indexed[16],
-      conf.resolved_palette.ansi[4],
-      conf.resolved_palette.ansi[3],
-      conf.resolved_palette.ansi[5],
-      conf.resolved_palette.ansi[6],
-    }
+  -- TODO: make colors configurable
+  local rainbow = {
+    conf.resolved_palette.ansi[2],
+    conf.resolved_palette.indexed[16],
+    conf.resolved_palette.ansi[4],
+    conf.resolved_palette.ansi[3],
+    conf.resolved_palette.ansi[5],
+    conf.resolved_palette.ansi[6],
+  }
 
-    local i = tab.tab_index % 6
-    local active_bg = rainbow[i + 1]
-    local active_fg = colours.background
-    local inactive_bg = colours.inactive_tab.bg_color
-    local inactive_fg = colours.inactive_tab.fg_color
-    local new_tab_bg = colours.new_tab.bg_color
+  local i = tab.tab_index % 6
+  local active_bg = rainbow[i + 1]
+  local active_fg = colours.background
+  local inactive_bg = colours.inactive_tab.bg_color
+  local inactive_fg = colours.inactive_tab.fg_color
+  local new_tab_bg = colours.new_tab.bg_color
 
-    local s_bg, s_fg, e_bg, e_fg
+  local s_bg, s_fg, e_bg, e_fg
 
-    -- the last tab
-    if tab.tab_index == #tabs - 1 then
-      if tab.is_active then
-        s_bg = active_bg
-        s_fg = active_fg
-        e_bg = new_tab_bg
-        e_fg = active_bg
-      else
-        s_bg = inactive_bg
-        s_fg = inactive_fg
-        e_bg = new_tab_bg
-        e_fg = inactive_bg
-      end
-    elseif tab.tab_index == active_tab_index - 1 then
-      s_bg = inactive_bg
-      s_fg = inactive_fg
-      e_bg = rainbow[(i + 1) % 6 + 1]
-      e_fg = inactive_bg
-    elseif tab.is_active then
+  -- the last tab
+  if tab.tab_index == #tabs - 1 then
+    if tab.is_active then
       s_bg = active_bg
       s_fg = active_fg
-      e_bg = inactive_bg
+      e_bg = new_tab_bg
       e_fg = active_bg
     else
       s_bg = inactive_bg
       s_fg = inactive_fg
-      e_bg = inactive_bg
+      e_bg = new_tab_bg
       e_fg = inactive_bg
     end
-
-    local pane_count = ""
-    if C.tabs.pane_count_style then
-      local tabi = wezterm.mux.get_tab(tab.tab_id)
-      local muxpanes = tabi:panes()
-      local count = #muxpanes == 1 and "" or tostring(#muxpanes)
-      pane_count = numberStyle(count, C.tabs.pane_count_style)
-    end
-
-    local index_i
-    if C.tabs.numerals == "roman" then
-      index_i = roman_numerals[tab.tab_index + 1]
-    else
-      index_i = tab.tab_index + 1
-    end
-
-    local index
-    if tab.is_active then
-      index = string.format(
-        "%s%s%s ",
-        C.tabs.brackets.active[1],
-        index_i,
-        C.tabs.brackets.active[2]
-      )
-    else
-      index = string.format(
-        "%s%s%s ",
-        C.tabs.brackets.inactive[1],
-        index_i,
-        C.tabs.brackets.inactive[2]
-      )
-    end
-
-    -- start and end hardcoded numbers are the Powerline + " " padding
-    local fillerwidth = 2 + string.len(index) + string.len(pane_count) + 2
-
-    local tabtitle = tab.active_pane.title
-    local width = conf.tab_max_width - fillerwidth - 1
-    if (#tabtitle + fillerwidth) > conf.tab_max_width then
-      tabtitle = wezterm.truncate_right(tabtitle, width) .. "…"
-    end
-
-    local title = string.format(" %s%s%s%s", index, tabtitle, pane_count, C.p)
-
-    return {
-      { Background = { Color = s_bg } },
-      { Foreground = { Color = s_fg } },
-      { Text = title },
-      { Background = { Color = e_bg } },
-      { Foreground = { Color = e_fg } },
-      { Text = C.div.r },
-    }
+  elseif tab.tab_index == active_tab_index - 1 then
+    s_bg = inactive_bg
+    s_fg = inactive_fg
+    e_bg = rainbow[(i + 1) % 6 + 1]
+    e_fg = inactive_bg
+  elseif tab.is_active then
+    s_bg = active_bg
+    s_fg = active_fg
+    e_bg = inactive_bg
+    e_fg = active_bg
+  else
+    s_bg = inactive_bg
+    s_fg = inactive_fg
+    e_bg = inactive_bg
+    e_fg = inactive_bg
   end
-)
 
-wezterm.on("update-status", function(window, _pane)
+  local pane_count = ""
+  if C.tabs.pane_count_style then
+    local tabi = wezterm.mux.get_tab(tab.tab_id)
+    local muxpanes = tabi:panes()
+    local count = #muxpanes == 1 and "" or tostring(#muxpanes)
+    pane_count = numberStyle(count, C.tabs.pane_count_style)
+  end
+
+  local index_i
+  if C.tabs.numerals == "roman" then
+    index_i = roman_numerals[tab.tab_index + 1]
+  else
+    index_i = tab.tab_index + 1
+  end
+
+  local index
+  if tab.is_active then
+    index = string.format(
+      "%s%s%s ",
+      C.tabs.brackets.active[1],
+      index_i,
+      C.tabs.brackets.active[2]
+    )
+  else
+    index = string.format(
+      "%s%s%s ",
+      C.tabs.brackets.inactive[1],
+      index_i,
+      C.tabs.brackets.inactive[2]
+    )
+  end
+
+  -- start and end hardcoded numbers are the Powerline + " " padding
+  local fillerwidth = 2 + string.len(index) + string.len(pane_count) + 2
+
+  local tabtitle = tab.active_pane.title
+  local width = conf.tab_max_width - fillerwidth - 1
+  if (#tabtitle + fillerwidth) > conf.tab_max_width then
+    tabtitle = wezterm.truncate_right(tabtitle, width) .. "…"
+  end
+
+  local title = string.format(" %s%s%s%s", index, tabtitle, pane_count, C.p)
+
+  local window = wezterm.mux.get_window(tab.window_id)
+  -- update_left_status(window, nil)
+
+  window:set_left_status("asdfasdfasdfasdf")
+
+  return {
+    { Background = { Color = s_bg } },
+    { Foreground = { Color = s_fg } },
+    { Text = title },
+    { Background = { Color = e_bg } },
+    { Foreground = { Color = e_fg } },
+    { Text = C.div.r },
+  }
+end
+
+
+
+
+local function update_right_status(window, _pane)
+  local present, conf = pcall(window.effective_config, window)
+  if not present then
+    return
+  end
+  local palette = conf.resolved_palette
+
+
+  if C.clock.enabled then
+    local time = wezterm.time.now():format(C.clock.format)
+    window:set_right_status(wezterm.format({
+      { Background = { Color = palette.tab_bar.background } },
+      { Foreground = { Color = palette.ansi[6] } },
+      { Text = time },
+    }))
+  end
+end
+
+-- custom tab bar
+local function update_left_status(window, _pane)
   local active_kt = window:active_key_table() ~= nil
   local show = C.leader.enabled or (active_kt and C.mode.enabled)
   if not show then
@@ -309,7 +333,6 @@ wezterm.on("update-status", function(window, _pane)
     return
   end
 
-  local present, conf = pcall(window.effective_config, window)
   if not present then
     return
   end
@@ -346,7 +369,7 @@ wezterm.on("update-status", function(window, _pane)
 
   local first_tab_active = window:mux_window():tabs_with_info()[1].is_active
   local divider_bg = first_tab_active and palette.ansi[2]
-    or palette.tab_bar.inactive_tab.bg_color
+      or palette.tab_bar.inactive_tab.bg_color
 
   local divider = wezterm.format({
     { Background = { Color = divider_bg } },
@@ -355,15 +378,12 @@ wezterm.on("update-status", function(window, _pane)
   })
 
   window:set_left_status(leader .. mode .. divider)
+end
 
-  if C.clock.enabled then
-    local time = wezterm.time.now():format(C.clock.format)
-    window:set_right_status(wezterm.format({
-      { Background = { Color = palette.tab_bar.background } },
-      { Foreground = { Color = palette.ansi[6] } },
-      { Text = time },
-    }))
-  end
-end)
+wezterm.on("format-tab-title", format_tab_title)
+wezterm.on("update-status", update_right_status)
+-- wezterm.on("update-status", update_left_status)
+
+
 
 return M
