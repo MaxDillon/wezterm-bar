@@ -380,7 +380,7 @@ end
 wezterm.on("format-tab-title", format_tab_title)
 wezterm.on("update-status", update_right_status)
 wezterm.on("update-status", update_left_status)
-wezterm.on("update-status-left", update_left_status)
+-- wezterm.on("update-status-left", update_left_status)
 
 
 
