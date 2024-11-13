@@ -288,7 +288,7 @@ local function format_tab_title(tab, tabs, _panes, conf, _hover, _max_width)
 
   local title = string.format(" %s%s%s%s", index, tabtitle, pane_count, C.p)
 
-  wezterm.emit("update-left-status")
+  wezterm.emit("update-status-left")
 
   return {
     { Background = { Color = s_bg } },
@@ -379,7 +379,8 @@ end
 
 wezterm.on("format-tab-title", format_tab_title)
 wezterm.on("update-status", update_right_status)
--- wezterm.on("update-status", update_left_status)
+wezterm.on("update-status", update_left_status)
+wezterm.on("update-status-left", update_left_status)
 
 
 
