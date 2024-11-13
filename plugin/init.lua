@@ -288,13 +288,7 @@ local function format_tab_title(tab, tabs, _panes, conf, _hover, _max_width)
 
   local title = string.format(" %s%s%s%s", index, tabtitle, pane_count, C.p)
 
-  local window = wezterm.mux.get_window(tab.window_id)
-  -- update_left_status(window, nil)
-  wezterm.log_info(window)
-  if window ~= nil then
-    -- wezterm.emit("update-left-status", window:gui_window())
-    -- window:gui_window():set_left_status("asdfasdfasdfasdf")
-  end
+  wezterm.emit("update-left-status")
 
   return {
     { Background = { Color = s_bg } },
