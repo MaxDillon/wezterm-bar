@@ -292,7 +292,7 @@ local function format_tab_title(tab, tabs, _panes, conf, _hover, _max_width)
   -- update_left_status(window, nil)
   wezterm.log_info(window)
   if window ~= nil then
-    wezterm.emit("update-left-status", window:gui_window())
+    -- wezterm.emit("update-left-status", window:gui_window())
     -- window:gui_window():set_left_status("asdfasdfasdfasdf")
   end
 
