@@ -290,8 +290,8 @@ local function format_tab_title(tab, tabs, _panes, conf, _hover, _max_width)
 
   local window = wezterm.mux.get_window(tab.window_id)
   -- update_left_status(window, nil)
-
-  window:set_left_status("asdfasdfasdfasdf")
+  wezterm.log_info(window)
+  -- window:set_left_status("asdfasdfasdfasdf")
 
   return {
     { Background = { Color = s_bg } },
