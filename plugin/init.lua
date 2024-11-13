@@ -323,6 +323,7 @@ end
 
 -- custom tab bar
 local function update_left_status(window, _pane)
+  wezterm.log_info("Success!!!")
   local active_kt = window:active_key_table() ~= nil
   local show = C.leader.enabled or (active_kt and C.mode.enabled)
   if not show then
